@@ -5,14 +5,13 @@ import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "users_f1")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class User {
+public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
-    private String password;
-    private String role; // "ADMIN" or "GUEST"
+    @Column(unique = true, nullable = false)
+    private String name;
+
+    // Add other team details if needed, e.g., base location, principal
 }

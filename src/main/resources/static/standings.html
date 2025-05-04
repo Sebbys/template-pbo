@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Driver Standings - Neobrutalist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Optional: Add a custom font if desired */
+        /* @import url('https://fonts.googleapis.com/css2?family=...'); */
+        /* body { font-family: 'Your Font', sans-serif; } */
+
+        /* Add styles for alternating rows */
+        #standings-body tr:nth-child(odd) {
+            background-color: white;
+        }
+        #standings-body tr:nth-child(even) {
+            background-color: #FEE2E2; /* red-100 */
+        }
+        #standings-body tr:hover {
+            background-color: #FECACA; /* red-200 */
+        }
+    </style>
+</head>
+<body class="bg-gray-200 p-4 sm:p-8 font-sans">
+    <div class="container mx-auto bg-white p-6 border-2 border-black shadow-[8px_8px_0_0_#000]">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b-2 border-black">
+            <h1 class="text-3xl font-extrabold mb-2 sm:mb-0">F1 Driver Standings</h1>
+            <div class="flex space-x-3">
+                 <!-- {/* Neobrutalist styled links/buttons */} -->
+                 <a href="/login.html" class="inline-block bg-white text-red-600 border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_#000] hover:shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] transition-all duration-100">
+                    Admin Login
+                 </a>
+                 <a href="/admin.html" class="inline-block bg-red-600 text-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_#000] hover:shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] transition-all duration-100">
+                     Manage Standings
+                 </a>
+            </div>
+        </div>
+        <p class="text-gray-700 mb-5 text-base">View the latest Formula 1 driver standings below.</p>
+        
+        <div class="overflow-x-auto border-2 border-black">
+             <table class="min-w-full">
+                 <thead class="bg-black text-white border-b-2 border-black">
+                     <tr>
+                         <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-black">
+                             Driver Name
+                         </th>
+                         <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-black">
+                             Team
+                         </th>
+                         <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider"> 
+                            <!-- {/* No right border on last header */} -->
+                             Points
+                         </th>
+                     </tr>
+                 </thead>
+                 <tbody id="standings-body">
+                     <!-- {/* Initial Loading State */} -->
+                     <tr>
+                         <td colspan="3" class="px-5 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-medium">Loading standings...</td>
+                     </tr>
+                 </tbody>
+             </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/drivers') // Fetch data from the DriverController endpoint
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('standings-body');
+                    tableBody.innerHTML = ''; // Clear loading message
+
+                    if (!data || data.length === 0) {
+                         tableBody.innerHTML = '<tr><td colspan="3" class="px-5 py-4 whitespace-nowrap text-sm text-gray-600 text-center font-semibold">No standings available at the moment.</td></tr>';
+                         return;
+                    }
+
+                    // Sort data by points descending (optional, but typical for standings)
+                    data.sort((a, b) => b.points - a.points);
+
+                    data.forEach(driver => {
+                        // Added border-r classes for neobrutalist cell separation
+                        // Text colors adjusted for clarity
+                        // Font weights adjusted
+                        const row = `
+                            <tr class="border-b border-gray-300 last:border-b-0"> 
+                                <td class="px-5 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 border-r border-gray-300">${driver.driverName || 'N/A'}</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 border-r border-gray-300">${driver.team || 'N/A'}</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">${driver.points !== undefined ? driver.points : 'N/A'}</td>
+                            </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching standings:', error);
+                    const tableBody = document.getElementById('standings-body');
+                    // Using red color for error message
+                    tableBody.innerHTML = '<tr><td colspan="3" class="px-5 py-4 whitespace-nowrap text-sm text-red-700 text-center font-semibold">Failed to load standings. Please try again later.</td></tr>';
+                });
+        });
+    </script>
+</body>
+</html>

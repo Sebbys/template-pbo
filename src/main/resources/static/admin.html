@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - F1 Driver Standings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Optional: Add a custom font if desired */
+        /* @import url('https://fonts.googleapis.com/css2?family=...'); */
+        /* body { font-family: 'Your Font', sans-serif; } */
+
+        /* Add styles for alternating rows */
+        #standings-body tr:nth-child(odd) {
+            background-color: white;
+        }
+        #standings-body tr:nth-child(even) {
+            background-color: #FEE2E2; /* red-100 */
+        }
+        #standings-body tr:hover {
+            background-color: #FECACA; /* red-200 */
+        }
+
+        /* Style for neobrutalist input inside table */
+        .points-input-neo {
+             width: 6rem; /* Adjust width as needed */
+             padding: 0.25rem 0.5rem; /* Smaller padding */
+             border: 2px solid black;
+             font-size: 0.875rem; /* sm */
+             text-align: right;
+             /* Remove default number input spinners (optional) */
+             -moz-appearance: textfield; 
+        }
+        .points-input-neo::-webkit-outer-spin-button,
+        .points-input-neo::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .points-input-neo:focus {
+             outline: none;
+             border-color: #EF4444; /* red-500 */
+             /* box-shadow: 0 0 0 2px #FCA5A5; */ /* Optional focus ring */
+        }
+
+        /* Base style for action buttons */
+        .action-btn {
+            display: inline-block;
+            padding: 0.25rem 0.5rem; /* Smaller padding */
+            border: 2px solid black;
+            font-size: 0.75rem; /* xs */
+            font-weight: 700; /* bold */
+            text-align: center;
+            transition: all 0.1s ease-in-out;
+            box-shadow: 2px 2px 0 0 #000;
+            margin-right: 0.5rem; /* space between buttons */
+        }
+        .action-btn:active {
+            box-shadow: 1px 1px 0 0 #000;
+            transform: translate(1px, 1px);
+        }
+        .action-btn:last-child {
+             margin-right: 0;
+        }
+
+        /* Specific colors for action buttons */
+        .update-btn-neo {
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+        }
+        .update-btn-neo:hover {
+            background-color: #2563EB; /* blue-600 */
+        }
+        .delete-btn-neo {
+            background-color: #DC2626; /* red-600 */
+            color: white;
+        }
+        .delete-btn-neo:hover {
+            background-color: #B91C1C; /* red-700 */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-200 p-4 sm:p-8 font-sans">
+    <!-- {/* Main container with neobrutalist style */} -->
+    <div class="container mx-auto bg-white p-6 border-2 border-black shadow-[8px_8px_0_0_#000]">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b-2 border-black">
+             <h1 class="text-3xl font-extrabold mb-2 sm:mb-0">Admin: Manage Standings</h1>
+             <!-- {/* Optional: Add a logout or back button here */} -->
+             <a href="/standings.html" class="inline-block bg-white text-red-600 border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_#000] hover:shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] transition-all duration-100 text-sm">
+                &larr; Back to Standings
+             </a>
+        </div>
+
+        <p class="text-sm text-gray-700 mb-5 font-medium">Note: Create/Update operations may require backend logic for handling Driver/Team relationships.</p>
+
+        <!-- {/* Create New Standing Form Section */} -->
+        <div class="mb-8 p-5 border-2 border-black shadow-[6px_6px_0_0_rgba(0,0,0,0.1)]"> 
+            <!-- {/* Subtle inner shadow */} -->
+            <h2 class="text-2xl font-bold mb-4 border-b border-black pb-2">Create New Standing</h2>
+            <form id="create-form" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="driverName" class="block text-sm font-semibold text-gray-800 mb-1">Driver Name</label>
+                    <!-- {/* Neobrutalist Input */} -->
+                    <input type="text" id="driverName" name="driverName" required 
+                           class="block w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:border-red-500 focus:ring-0">
+                </div>
+                <div>
+                    <label for="team" class="block text-sm font-semibold text-gray-800 mb-1">Team</label>
+                    <!-- {/* Neobrutalist Input */} -->
+                    <input type="text" id="team" name="team" required 
+                           class="block w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:border-red-500 focus:ring-0">
+                </div>
+                <div>
+                    <label for="points" class="block text-sm font-semibold text-gray-800 mb-1">Points</label>
+                    <!-- {/* Neobrutalist Input */} -->
+                    <input type="number" id="points" name="points" required 
+                           class="block w-full px-3 py-2 border-2 border-black text-sm focus:outline-none focus:border-red-500 focus:ring-0">
+                </div>
+                <!-- {/* Neobrutalist Button */} -->
+                <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 border-2 border-black h-[42px] mt-2 sm:mt-0
+                               shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] 
+                               active:shadow-[2px_2px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] 
+                               focus:outline-none transition-all duration-150 text-sm">
+                    Create
+                </button>
+            </form>
+            <p id="create-message" class="text-sm font-semibold mt-3 h-5"></p> 
+        </div>
+
+        <!-- {/* Standings Table Section */} -->
+        <h2 class="text-2xl font-bold mb-4">Current Standings</h2>
+        <div class="overflow-x-auto border-2 border-black">
+             <!-- {/* Table wrapper */} -->
+            <table class="min-w-full">
+                <thead class="bg-black text-white border-b-2 border-black">
+                    <tr>
+                        <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-black">Driver Name</th>
+                        <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-black">Team</th>
+                        <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-black">Points</th>
+                        <th scope="col" class="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="standings-body">
+                    <!-- {/* Initial Loading State */} -->
+                    <tr>
+                        <td colspan="4" class="px-5 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-medium">Loading standings...</td>
+                    </tr>
+                    <!-- {/* Data will be loaded here by JavaScript */} -->
+                </tbody>
+            </table>
+        </div>
+        <p id="error-message" class="text-sm text-red-600 font-semibold mt-3 h-5"></p>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('standings-body');
+        const createForm = document.getElementById('create-form');
+        const createMessage = document.getElementById('create-message');
+        const errorMessage = document.getElementById('error-message');
+
+        // --- Fetch and Display Standings ---
+        async function fetchStandings() {
+            errorMessage.textContent = '';
+            tableBody.innerHTML = '<tr><td colspan="4" class="px-5 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-medium">Loading standings...</td></tr>'; // Updated colspan and styling
+            try {
+                const response = await fetch('/drivers'); // Assumes this endpoint returns all drivers with IDs
+                if (!response.ok) {
+                    // Check for specific auth error (e.g., 401 Unauthorized)
+                    if (response.status === 401 || response.status === 403) {
+                         throw new Error(`Authentication failed (Status: ${response.status}). Please login again.`);
+                         // Optionally redirect to login: window.location.href = '/login.html';
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                // Sort data by points descending before rendering
+                data.sort((a, b) => b.points - a.points);
+                renderTable(data);
+            } catch (error) {
+                console.error('Error fetching standings:', error);
+                errorMessage.textContent = `Failed to load standings: ${error.message}`;
+                tableBody.innerHTML = '<tr><td colspan="4" class="px-5 py-4 whitespace-nowrap text-sm text-red-600 text-center font-semibold">Error loading data.</td></tr>'; // Error row
+            }
+        }
+
+        // --- Render Table ---
+        function renderTable(data) {
+            tableBody.innerHTML = ''; // Clear loading/previous data
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="px-5 py-4 whitespace-nowrap text-sm text-gray-600 text-center font-semibold">No standings available. Add one above.</td></tr>';
+                return;
+            }
+            data.forEach(standing => {
+                // Ensure standing.id exists, otherwise skip or handle
+                if (standing.id === undefined || standing.id === null) {
+                    console.warn('Skipping standing without ID:', standing);
+                    return; 
+                }
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-300 last:border-b-0'; // Style rows
+
+                // Use innerHTML for easier structure, applying neobrutalist styles
+                row.innerHTML = `
+                    <td class="px-5 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 border-r border-gray-300">${standing.driverName || 'N/A'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 border-r border-gray-300">${standing.team || 'N/A'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 border-r border-gray-300">
+                        <input type="number" value="${standing.points !== undefined ? standing.points : ''}" data-id="${standing.id}" class="points-input-neo" /> 
+                    </td>
+                    <td class="px-5 py-3 whitespace-nowrap text-xs">
+                        <button class="action-btn update-btn-neo" data-id="${standing.id}">Update</button>
+                        <button class="action-btn delete-btn-neo" data-id="${standing.id}">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // --- Handle Create ---
+        createForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            createMessage.textContent = 'Creating...';
+            createMessage.className = 'text-sm font-semibold mt-3 h-5 text-blue-600'; // Style for processing
+
+            const formData = new FormData(createForm);
+            const pointsValue = formData.get('points');
+            const payload = {
+                driverName: formData.get('driverName'),
+                team: formData.get('team'),
+                // Ensure points is a number, default to 0 if invalid/empty
+                points: parseInt(pointsValue, 10) || 0 
+            };
+
+             // Basic client-side validation
+             if (!payload.driverName || !payload.team) {
+                 createMessage.textContent = 'Driver Name and Team are required.';
+                 createMessage.className = 'text-sm font-semibold mt-3 h-5 text-red-600';
+                 return;
+             }
+
+            try {
+                const response = await fetch('/drivers', { // POST to the collection endpoint
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const resultText = await response.text(); // Read response as text first
+
+                if (!response.ok) {
+                    // Try to parse as JSON if it's an error object, otherwise use text
+                    let errorDetail = resultText;
+                    try {
+                        const errorJson = JSON.parse(resultText);
+                        errorDetail = errorJson.message || JSON.stringify(errorJson);
+                    } catch (e) { /* Ignore parsing error, use raw text */ }
+                    // Check for auth error
+                    if (response.status === 401 || response.status === 403) {
+                         errorDetail = `Authentication failed. Please login again. (Status: ${response.status})`;
+                    }
+                    throw new Error(`HTTP error ${response.status}: ${errorDetail}`);
+                }
+
+                // Handle potential non-JSON success responses (though ideally backend returns the created object)
+                createMessage.textContent = 'Standing created successfully!'; 
+                createMessage.className = 'text-sm font-semibold mt-3 h-5 text-green-600'; // Success style
+                createForm.reset();
+                fetchStandings(); // Refresh table
+
+            } catch (error) {
+                console.error('Error creating standing:', error);
+                createMessage.textContent = `Error: ${error.message}`;
+                createMessage.className = 'text-sm font-semibold mt-3 h-5 text-red-600'; // Error style
+            } finally {
+                 // Optionally clear message after a delay
+                 // setTimeout(() => { createMessage.textContent = ''; }, 5000);
+            }
+        });
+
+
+        // --- Handle Update and Delete via Event Delegation ---
+        tableBody.addEventListener('click', async (event) => {
+            const target = event.target;
+            // Use closest to handle clicks inside the button (e.g., on text)
+            const button = target.closest('button.action-btn'); 
+            
+            if (!button) return; // Clicked somewhere else, not an action button
+
+            const id = button.dataset.id;
+            if (!id) return; // Button doesn't have a data-id
+
+            errorMessage.textContent = ''; // Clear previous table-level errors
+
+            // Handle Delete
+            if (button.classList.contains('delete-btn-neo')) {
+                if (!confirm(`Are you sure you want to delete standing for ID ${id}?`)) return;
+
+                button.textContent = 'Deleting...'; // Feedback
+                button.disabled = true;
+
+                try {
+                    const response = await fetch(`/drivers/${id}`, { method: 'DELETE' }); // DELETE to specific resource URL
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        let errorDetail = errorText;
+                         if (response.status === 401 || response.status === 403) {
+                             errorDetail = `Authentication failed. Please login again. (Status: ${response.status})`;
+                         }
+                        throw new Error(`HTTP error! status: ${response.status} - ${errorDetail}`);
+                    }
+                    console.log(`Standing ${id} deleted`);
+                    fetchStandings(); // Refresh table (implicitly resets button)
+                } catch (error) {
+                    console.error('Error deleting standing:', error);
+                    errorMessage.textContent = `Failed to delete standing ${id}: ${error.message}`;
+                    // Reset button state on error
+                    button.textContent = 'Delete';
+                    button.disabled = false;
+                }
+            }
+
+            // Handle Update (Points Only)
+            if (button.classList.contains('update-btn-neo')) {
+                // Find the input within the same table row (more robust)
+                const row = button.closest('tr');
+                const pointsInput = row ? row.querySelector(`input.points-input-neo[data-id="${id}"]`) : null;
+                
+                if (!pointsInput) {
+                     errorMessage.textContent = 'Could not find points input for this row.';
+                     return;
+                }
+
+                const newPoints = parseInt(pointsInput.value, 10);
+                if (isNaN(newPoints)) {
+                    errorMessage.textContent = 'Invalid points value. Please enter a number.';
+                    pointsInput.focus(); // Highlight the problematic input
+                    pointsInput.select();
+                    return;
+                }
+
+                button.textContent = 'Updating...'; // Provide feedback
+                button.disabled = true;
+
+                try {
+                    // Only send the field to be updated (points)
+                    const payload = { points: newPoints }; 
+                    const response = await fetch(`/drivers/${id}`, { // PUT or PATCH to specific resource URL
+                        method: 'PUT', // Or PATCH if backend supports partial updates
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const resultText = await response.text(); // Read response as text
+
+                    if (!response.ok) {
+                        let errorDetail = resultText;
+                         if (response.status === 401 || response.status === 403) {
+                             errorDetail = `Authentication failed. Please login again. (Status: ${response.status})`;
+                         }
+                        throw new Error(`HTTP error ${response.status}: ${errorDetail}`);
+                    }
+
+                    console.log(`Standing ${id} updated: ${resultText}`);
+                    // Update successful - refresh the whole table to ensure consistency and reset button state
+                    fetchStandings(); 
+
+                } catch (error) {
+                    console.error('Error updating standing:', error);
+                    errorMessage.textContent = `Failed to update standing ${id}: ${error.message}`;
+                    // Reset button state on error
+                    button.textContent = 'Update';
+                    button.disabled = false;
+                }
+                // Note: Button state is fully reset by fetchStandings() on success
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', fetchStandings);
+    </script>
+</body>
+</html>
